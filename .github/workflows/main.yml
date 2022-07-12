@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
 
-  build:
+  arm-build:
 
     runs-on: ubuntu-latest
     steps:
@@ -12,6 +12,7 @@ jobs:
     - name: Download Rom
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        image_additional_mb: 100
         commands: |
           sudo apt update
           sudo apt install -y git
@@ -19,12 +20,14 @@ jobs:
     - name: Install dependencies
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        image_additional_mb: 100
         commands: |
           sudo apt update
           sudo apt install --no-install-recommends -y libsdl2-dev libsdl2-mixer-dev libhpdf-dev libpng++-dev libwebp-dev libpoco-dev libncurses5-dev
     - name: Build Lua
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        image_additional_mb: 100
         commands: |
          git submodule update --init --recursive
          make -C craftos2-lua linux -j$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
@@ -37,6 +40,7 @@ jobs:
     - name: Run CraftOSTest
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        image_additional_mb: 100
         commands: | 
          ./craftos --headless --script resources/CraftOSTest.lua || echo $? > ~/.retval
       continue-on-error: true
