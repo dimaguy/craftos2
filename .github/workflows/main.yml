@@ -13,6 +13,8 @@ jobs:
       uses: pguyot/arm-runner-action@v2.4.0
       with:
         commands: |
+          sudo apt update
+          sudo apt install git
           sudo git clone https://github.com/MCJack123/craftos2-rom /usr/local/share/craftos
     - name: Install dependencies
       uses: pguyot/arm-runner-action@v2.4.0
