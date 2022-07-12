@@ -9,27 +9,41 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v1
-    - name: Download ROM
-      run: sudo git clone https://github.com/MCJack123/craftos2-rom /usr/local/share/craftos
+    - name: Download Rom
+      uses: pguyot/arm-runner-action@v2.4.0
+      with:
+        commands: |
+          sudo git clone https://github.com/MCJack123/craftos2-rom /usr/local/share/craftos
     - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y libsdl2-dev libsdl2-mixer-dev libhpdf-dev libpng++-dev libwebp-dev libpoco-dev libncurses5-dev
+      uses: pguyot/arm-runner-action@v2.4.0
+      with:
+        commands: |
+          sudo apt update
+          sudo apt install -y libsdl2-dev libsdl2-mixer-dev libhpdf-dev libpng++-dev libwebp-dev libpoco-dev libncurses5-dev
     - name: Build Lua
-      run: |
-        git submodule update --init --recursive
-        make -C craftos2-lua linux -j$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+      uses: pguyot/arm-runner-action@v2.4.0
+      with:
+        commands: |
+         git submodule update --init --recursive
+         make -C craftos2-lua linux -j$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
     - name: Build CraftOS-PC
-      run: |
-        CFLAGS=-Wall ./configure
-        make -j$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
+      uses: pguyot/arm-runner-action@v2.4.0
+      with:
+        commands: |
+         CFLAGS=-Wall ./configure
+         make -j$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
     - name: Run CraftOSTest
-      run: ./craftos --headless --script resources/CraftOSTest.lua || echo $? > ~/.retval
+      uses: pguyot/arm-runner-action@v2.4.0
+      with:
+        commands: | 
+         ./craftos --headless --script resources/CraftOSTest.lua || echo $? > ~/.retval
       continue-on-error: true
     - name: Show logs
-      run: |
-        cat ~/.local/share/craftos-pc/computer/0/CraftOSTest.log
-        if [ -e ~/.retval ]; then exit $(cat ~/.retval); fi
+      uses: pguyot/arm-runner-action@v2.4.0
+      with:
+        commands: |
+         cat ~/.local/share/craftos-pc/computer/0/CraftOSTest.log
+         if [ -e ~/.retval ]; then exit $(cat ~/.retval); fi
     
   build-basic:
 
