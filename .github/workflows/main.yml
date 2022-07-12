@@ -10,6 +10,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Download Rom
+      id: downloadrom
       uses: pguyot/arm-runner-action@v2.4.0
       with:
         image_additional_mb: 100
@@ -18,28 +19,36 @@ jobs:
           sudo apt install -y git
           sudo git clone https://github.com/MCJack123/craftos2-rom /usr/local/share/craftos
     - name: Install dependencies
+      id: installdeps
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        base_image: ${{ steps.downloadrom.outputs.image }}
         image_additional_mb: 100
         commands: |
           sudo apt update
           sudo apt install --no-install-recommends -y libsdl2-dev libsdl2-mixer-dev libhpdf-dev libpng++-dev libwebp-dev libpoco-dev libncurses5-dev
     - name: Build Lua
+      id: buildlua
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        base_image: ${{ steps.installdeps.outputs.image }}
         image_additional_mb: 100
         commands: |
          git submodule update --init --recursive
          make -C craftos2-lua linux -j$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
     - name: Build CraftOS-PC
+      id: buildcos
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        base_image: ${{ steps.buildlua.outputs.image }}
         commands: |
          CFLAGS=-Wall ./configure
          make -j$(grep ^cpu\\scores /proc/cpuinfo | uniq |  awk '{print $4}')
     - name: Run CraftOSTest
+      id: runtests
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        base_image: ${{ steps.buildcos.outputs.image }}
         image_additional_mb: 100
         commands: | 
          ./craftos --headless --script resources/CraftOSTest.lua || echo $? > ~/.retval
@@ -47,6 +56,7 @@ jobs:
     - name: Show logs
       uses: pguyot/arm-runner-action@v2.4.0
       with:
+        base_image: ${{ steps.runtests.outputs.image }}
         commands: |
          cat ~/.local/share/craftos-pc/computer/0/CraftOSTest.log
          if [ -e ~/.retval ]; then exit $(cat ~/.retval); fi
