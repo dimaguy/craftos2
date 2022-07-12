@@ -19,7 +19,7 @@ jobs:
       with:
         commands: |
           sudo apt update
-          sudo apt install -y libsdl2-dev libsdl2-mixer-dev libhpdf-dev libpng++-dev libwebp-dev libpoco-dev libncurses5-dev
+          sudo apt install --no-install-recommends -y libsdl2-dev libsdl2-mixer-dev libhpdf-dev libpng++-dev libwebp-dev libpoco-dev libncurses5-dev
     - name: Build Lua
       uses: pguyot/arm-runner-action@v2.4.0
       with:
